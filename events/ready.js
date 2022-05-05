@@ -23,12 +23,9 @@ module.exports = client => {
   let serverres = config.resource.servers
   let serverport = config.resource.allocations
   let serverloc = config.resource.location
-  let unit = config.resource.unit
 
-  let title = config.embed.title
   let color = config.embed.color
   let desc = config.embed.description.text
-  let footer = config.embed.footer.text
   let enablets = config.embed.timestamp
   let enabledesc = config.embed.description.enable
   let enablef = config.embed.footer.enable
@@ -37,14 +34,13 @@ module.exports = client => {
   let debugerror = config.debugaxios
 
   if (debug === true) {
-    console.log(chalk.red('=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+='))
-    console.log(chalk.magenta('[PteroStats Debug] ') + chalk.green('Debug Mode: ') + chalk.cyan('true'))
-    console.log(chalk.magenta('[PteroStats Debug] ') + chalk.green('Debug Axios Mode: ') + chalk.cyan(debugerror))
-    console.log(chalk.magenta('[PteroStats Debug] ') + chalk.green('Resource: ') + chalk.cyan(resource))
-    console.log(chalk.magenta('[PteroStats Debug] ') + chalk.green('Custom Status: ') + chalk.cyan(enablecs))
-    console.log(chalk.magenta('[PteroStats Debug] ') + chalk.green('Enable Timestamp: ') + chalk.cyan(enablets))
-    console.log(chalk.magenta('[PteroStats Debug] ') + chalk.green('Enable Description: ') + chalk.cyan(enabledesc))
-    console.log(chalk.magenta('[PteroStats Debug] ') + chalk.green('Enable Footer: ') + chalk.cyan(enablef))
+    console.log(chalk.magenta(' ') + chalk.green('Debug Mode: ') + chalk.cyan('true'))
+    console.log(chalk.magenta('[live-stats@/events/ready.js:42] ') + chalk.green('Debug Axios Mode: ') + chalk.cyan(debugerror))
+    console.log(chalk.magenta('[live-stats@/events/ready.js:43] ') + chalk.green('Resource: ') + chalk.cyan(resource))
+    console.log(chalk.magenta('[live-stats@/events/ready.js:44] ') + chalk.green('Custom Status: ') + chalk.cyan(enablecs))
+    console.log(chalk.magenta('[live-stats@/events/ready.js:45] ') + chalk.green('Enable Timestamp: ') + chalk.cyan(enablets))
+    console.log(chalk.magenta('[live-stats@/events/ready.js:46] ') + chalk.green('Enable Description: ') + chalk.cyan(enabledesc))
+    console.log(chalk.magenta('[live-stats@/events/ready.js:47] ') + chalk.green('Enable Footer: ') + chalk.cyan(enablef))
   }
 
   if (!hosturl.includes('http')) hosturl = 'http://' + hosturl
@@ -54,7 +50,7 @@ module.exports = client => {
   if (enablecs === true) {
     client.user.setActivity(cs, { type: stype })
   } else {
-    client.user.setActivity(title + 'the sound of pings', { type: 'LISTENING' })
+    client.user.setActivity('the sound of pings', { type: 'LISTENING' })
   }
 
   console.log(chalk.green('Name: ') + chalk.cyan(client.user.username))
@@ -107,35 +103,12 @@ module.exports = client => {
                 Authorization: 'Bearer ' + data.data.token
               }
             }).then(status => {
-              let ram = 'temp'
-              let disk = 'temp'
-
               const mode = node.data.attributes.maintenance_mode
-              const loc = '[Locations: ' + node.data.attributes.relationships.location.attributes.short + ']'
-              const port = '[Allocations: ' + node.data.attributes.relationships.allocations.data.length + ']'
-              const servers = '[Servers: ' + node.data.attributes.relationships.servers.data.length + ']'
-              const rampercent = '[Ram: ' + Math.floor(node.data.attributes.allocated_resources.memory / node.data.attributes.memory * 100) + '%/100%]'
-              const diskpercent = '[Disk: ' + Math.floor(node.data.attributes.allocated_resources.disk / node.data.attributes.disk * 100) + '%/100%]'
-              const rammega = '[Ram: ' + node.data.attributes.allocated_resources.memory + 'MB/' + node.data.attributes.memory + 'MB]'
-              const diskmega = '[Disk: ' + node.data.attributes.allocated_resources.disk + 'MB/' + node.data.attributes.disk + 'MB]'
-              const ramgiga = '[Ram: ' + Math.floor(node.data.attributes.allocated_resources.memory / 1000) + 'GB/' + Math.floor(node.data.attributes.memory / 1000) + 'GB]'
-              const diskgiga = '[Disk: ' + Math.floor(node.data.attributes.allocated_resources.disk / 1000) + 'GB/' + Math.floor(node.data.attributes.disk / 1000) + 'GB]'
-              if (unit === 'mb') {
-                disk = diskmega
-                ram = rammega
-              }
-              if (unit === 'gb') {
-                disk = diskgiga
-                ram = ramgiga
-              }
-              if (unit === 'percent') {
-                disk = diskpercent
-                ram = rampercent
-              }
+              const loc = 'Location: ' + node.data.attributes.relationships.location.attributes.short
+              const port = 'Allocations: ' + node.data.attributes.relationships.allocations.data.length
+              const servers = 'Servers: ' + node.data.attributes.relationships.servers.data.length
 
               nodetable.set('node' + id, {
-                ram: ram,
-                disk: disk,
                 status: true,
                 servers: servers,
                 location: loc,
@@ -147,14 +120,10 @@ module.exports = client => {
               let servers = '[Servers: Unavailable]'
               let loc = '[Location: Unavailable]'
               let port = '[Allocations: Unavailable]'
-              let ram = '[Ram: Unavailable]'
-              let disk = '[Disk: Unavailable]'
 
               console.log(chalk.cyan('[live-stats@/events/ready.js:153] ') + chalk.red(node.data.attributes.name + ' is offline.'))
 
               nodetable.set('node' + id, {
-                ram: ram,
-                disk: disk,
                 status: false,
                 servers: servers,
                 location: loc,
@@ -182,8 +151,7 @@ module.exports = client => {
 
           if (stats.mode === true) statsname = statsname + ' Maintainence Mode'
 
-          if (resource === true) statsname = statsname + '\n```\n' + stats.ram + '\n' + stats.disk
-          if (serverloc === true) statsname = statsname + '\n' + stats.location
+          if (serverloc === true) statsname = statsname + '\n```\n' + stats.location
           if (serverport === true) statsname = statsname + '\n' + stats.port
           if (serverres === true) statsname = statsname + '\n' + stats.servers
           if (resource === false) statsname = statsname + '\n'
@@ -232,15 +200,15 @@ module.exports = client => {
       if (userCount === null) userCount = '...'
       if (serverCount === null) serverCount = '...'
 
-      if (userCount !== 'Unavailable') paneltable.set('panel', '**Panel**: ' + statusonline)
+      if (userCount !== 'Unavailable') paneltable.set('panel', '**portal.neronodes.net:** ' + statusonline)
       if (userCount === 'Unavailable') {
-        paneltable.set('panel', '**Panel**: ' + statusoffline)
+        paneltable.set('panel', '**portal.neronodes.net:** ' + statusoffline)
         console.log(chalk.cyan('[live-stats@/events/ready.js:238] ') + chalk.red('Unable to reach Panel API, assuming system is down.'))
       }
-      if (userCount === checking) paneltable.set('panel', '**Panel**: ' + checking)
-      let panel = paneltable.get('panel') + '\n\nUsers: ' + userCount + '\nServers: ' + serverCount
+      if (userCount === checking) paneltable.set('panel', '**portal.neronodes.net:** ' + checking)
+      let panel = paneltable.get('panel') + '\n```Users: ' + userCount + '\nServers: ' + serverCount + '```'
 
-      if (panel === null) panel = '**Panel**: ' + checking + '\n\nUsers: ' + userCount + '\nServers: ' + serverCount
+      if (panel === null) panel = '**portal.neronodes.net:** ' + checking + '\n**Users:** ' + userCount + '\n**Servers:** ' + serverCount
 
       let nodes
       list.forEach((d) => {
@@ -249,7 +217,7 @@ module.exports = client => {
       })
 
       console.log(chalk.cyan(['[live-stats@/events/ready.js:251] ']) + chalk.green(list.length + ' nodes connected.'))
-      let nodeCount = '[Total ' + list.length + ']'
+      let nodeCount = ' [Total: ' + list.length + ']'
 
       if (debug === true) console.log(chalk.magenta('[live-stats@/events/ready.js:254] ') + chalk.blue(nodes))
       if (nodes === undefined) {
@@ -258,24 +226,20 @@ module.exports = client => {
       }
 
       let embed = new MessageEmbed()
-        .setTitle(title)
         .setColor(color)
-        .addField('Panel Stats', panel)
-        .setThumbnail(client.user.avatarURL())
       if (enablets === true) {
         embed.setTimestamp()
       }
       if (enabledesc === true) {
-        embed.setDescription(desc + '\n**Nodes Stats' + nodeCount + '**\n' + nodes)
+        embed.setDescription(desc + '\n**Node Statistics ' + nodeCount + '**\n' + nodes)
       } else {
-        embed.setDescription('\n**Nodes Stats' + nodeCount + '**\n' + nodes)
+        embed.setDescription(panel + '\n\n' + nodes)
       }
 
       let messages = await ch.messages.fetch({limit: 10})
       messages = messages.filter(m => m.author.id === client.user.id).last();
       if (messages == null) ch.send(embed)
       else messages.edit(embed)
-
 
       console.log(chalk.cyan('[live-stats@/events/ready.js:280] ') + chalk.green('Posted statistics to Discord.'))
       if (panel !== null) console.log(chalk.cyan('[live-stats@/events/ready.js:281] ') + chalk.green('Statistics have been updated.'))

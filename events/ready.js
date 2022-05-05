@@ -1,7 +1,4 @@
-module.exports = client => {
-
-  //Code are very sensitive, please changes things on config.yml instead
-  
+module.exports = client => {  
   const { MessageEmbed } = require('discord.js')
   const axios = require('axios')
   const db = require('quick.db')
@@ -57,25 +54,22 @@ module.exports = client => {
   if (enablecs === true) {
     client.user.setActivity(cs, { type: stype })
   } else {
-    client.user.setActivity(title + ' Panel Stats', { type: 'WATCHING' })
+    client.user.setActivity(title + 'the sound of pings', { type: 'LISTENING' })
   }
 
-  console.log(chalk.red('=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+='))
-  console.log(chalk.green('Name: ') + chalk.cyan('PteroStats'))
-  console.log(chalk.green('Version: ') + chalk.cyan('Stable v1.5.0'))
-  console.log(chalk.green('Refresh Time: ') + chalk.cyan(time + ' Seconds'))
-  console.log(chalk.green('Bot Status: ') + chalk.cyan('Online'))
-  console.log(chalk.green('Support: ') + chalk.cyan('https://discord.gg/zv6maQRah3'))
-  console.log(chalk.red('=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+='))
+  console.log(chalk.green('Name: ') + chalk.cyan(client.user.username))
+  console.log(chalk.green('Version: ') + chalk.cyan(require('../package.json').version))
+  console.log(chalk.green('Refresh Time: ') + chalk.cyan(time + 's'))
   
-  if(paneltable.get('URL') === null) console.log(chalk.cyan('It seems you are using our bot for first time, thank you for choosing our bot, if you need help you can join our support server!'))
-  if(paneltable.get('URL') !== api) console.log(chalk.cyan('Panel url changed, please allow the bot to check the nodes status for ' + time + ' seconds'))
+  if(paneltable.get('URL') === null) console.log(chalk.cyan('Database is empty, assuming this startup is for first-time use.'))
+  if(paneltable.get('URL') !== api) console.log(chalk.cyan('Panel URL has changed. Allow the bot to scan nodes for ' + time + 's.'))
+
   paneltable.set('URL',api)
 
   setInterval(() => {
-    if (isNaN(time)) return console.log(chalk.cyan('[PteroStats Checker] ') + chalk.red(time + ' is not a number!'))
-    if (!hosturl.includes('.')) return console.log(chalk.cyan('[PteroStats Checker] ') + chalk.red(hosturl + ' is invalid url!'))
-    if (adminapikey.length < 48) return console.log(chalk.cyan('[PteroStats Checker] ') + chalk.red('Invalid Admin Apikey!!'))
+    if (isNaN(time)) return console.log(chalk.cyan('[live-stats@/events/ready.js:70] ') + chalk.red(time + ' is not a number.'))
+    if (!hosturl.includes('.')) return console.log(chalk.cyan('[live-stats@/events/ready.js:71] ') + chalk.red(hosturl + ' is invalid.'))
+    if (adminapikey.length < 48) return console.log(chalk.cyan('[live-stats@/events/ready.js:72] ') + chalk.red('API Key is invalid.'))
 
     let list = []
     axios(api + '/application/nodes/', {
@@ -150,14 +144,13 @@ module.exports = client => {
               })
 
             }).catch((err) => {
-              let servers = '[Servers: N/A]'
-              let loc = '[Location: N/A]'
-              let port = '[Allocations: N/A]'
-              let ram = '[Ram: N/A]'
-              let disk = '[Disk: N/A]'
+              let servers = '[Servers: Unavailable]'
+              let loc = '[Location: Unavailable]'
+              let port = '[Allocations: Unavailable]'
+              let ram = '[Ram: Unavailable]'
+              let disk = '[Disk: Unavailable]'
 
-              console.log(chalk.cyan('[PteroStats Checker] ') + chalk.red(node.data.attributes.name + ' is down!'))
-              if (debugerror === true) console.log(chalk.magenta('[PteroStats Debug] ') + chalk.red(err) + chalk.cyan(' Need Support? https://discord.gg/zv6maQRah3'))
+              console.log(chalk.cyan('[live-stats@/events/ready.js:153] ') + chalk.red(node.data.attributes.name + ' is offline.'))
 
               nodetable.set('node' + id, {
                 ram: ram,
@@ -170,10 +163,10 @@ module.exports = client => {
               })
             })
           }).catch((err) => {
-            console.log(chalk.magenta('[PteroStats Debug] ') + chalk.red(err) + chalk.cyan(' Need Support? https://discord.gg/zv6maQRah3'))
+            console.log(chalk.magenta('[live-stats@/events/ready.js:166] ') + chalk.red(err))
           })
         }).catch((err) => {
-          console.log(chalk.magenta('[PteroStats Debug] ') + chalk.red(err) + chalk.cyan(' Need Support? https://discord.gg/zv6maQRah3'))
+          console.log(chalk.magenta('[live-stats@/events/ready.js:169] ') + chalk.red(err))
         })
 
         let stats = nodetable.get('node' + id)
@@ -187,7 +180,7 @@ module.exports = client => {
             
           if (resource === false) msgStats = statsname + '\n'
 
-          if (stats.mode === true) statsname = statsname + ' [Maintance]'
+          if (stats.mode === true) statsname = statsname + ' Maintainence Mode'
 
           if (resource === true) statsname = statsname + '\n```\n' + stats.ram + '\n' + stats.disk
           if (serverloc === true) statsname = statsname + '\n' + stats.location
@@ -212,9 +205,9 @@ module.exports = client => {
         let res = ser.data.meta.pagination.total
         paneltable.set('serverCount', res)
       }).catch((err) => {
-        paneltable.set('serverCount', 'N/A')
-        console.log(chalk.cyan('[PteroStats Checker] ') + chalk.red('Panel is down'))
-        if (debugerror === true) console.log(chalk.magenta('[PteroStats Debug] ') + err)
+        paneltable.set('serverCount', 'Unavailable')
+        console.log(chalk.cyan('[live-stats@/events/ready.js:209] ') + chalk.red('Unable to reach Panel API, assuming system is down.'))
+        if (debugerror === true) console.log(chalk.magenta('[live-stats@/events/ready.js:210] ') + err)
       })
 
       axios(api + '/application/users', {
@@ -228,21 +221,21 @@ module.exports = client => {
         let res = usr.data.meta.pagination.total
         paneltable.set('userCount', res)
       }).catch((err) => {
-        paneltable.set('userCount', 'N/A')
-        console.log(chalk.cyan('[PteroStats Checker] ') + chalk.red('Panel is down!'))
-        if (debugerror === true) console.log(chalk.magenta('[PteroStats Debug] ') + err)
+        paneltable.set('userCount', 'Unavailable')
+        console.log(chalk.cyan('[live-stats@/events/ready.js:225] ') + chalk.red('Unable to reach Panel API, assuming system is down.'))
+        if (debugerror === true) console.log(chalk.magenta('[live-stats@/events/ready.js:226] ') + err)
       })
 
       let userCount = paneltable.get('userCount')
       let serverCount = paneltable.get('serverCount')
 
-      if (userCount === null) userCount = 'checking'
-      if (serverCount === null) serverCount = 'checking'
+      if (userCount === null) userCount = '...'
+      if (serverCount === null) serverCount = '...'
 
-      if (userCount !== 'N/A') paneltable.set('panel', '**Panel**: ' + statusonline)
-      if (userCount === 'N/A') {
+      if (userCount !== 'Unavailable') paneltable.set('panel', '**Panel**: ' + statusonline)
+      if (userCount === 'Unavailable') {
         paneltable.set('panel', '**Panel**: ' + statusoffline)
-        console.log(chalk.cyan('[PteroStats Checker] ') + chalk.red('panel is down!'))
+        console.log(chalk.cyan('[live-stats@/events/ready.js:238] ') + chalk.red('Unable to reach Panel API, assuming system is down.'))
       }
       if (userCount === checking) paneltable.set('panel', '**Panel**: ' + checking)
       let panel = paneltable.get('panel') + '\n\nUsers: ' + userCount + '\nServers: ' + serverCount
@@ -255,23 +248,19 @@ module.exports = client => {
         nodes = nodes + d
       })
 
-      console.log(chalk.cyan(['[PteroStats Checker] ']) + chalk.green('Connected to ' + list.length + ' nodes'))
+      console.log(chalk.cyan(['[live-stats@/events/ready.js:251] ']) + chalk.green(list.length + ' nodes connected.'))
       let nodeCount = '[Total ' + list.length + ']'
 
-      if (debug === true) console.log(chalk.magenta('[PteroStats Debug] ') + chalk.blue(nodes))
+      if (debug === true) console.log(chalk.magenta('[live-stats@/events/ready.js:254] ') + chalk.blue(nodes))
       if (nodes === undefined) {
         nodes = checking + ' Please wait ' + time + ' seconds'
-        console.log(chalk.cyan(['[PteroStats Checker] ']) + chalk.yellow(checking + ' Please wait ' + time + ' seconds'))
+        console.log(chalk.cyan(['[live-stats@/events/ready.js:257] ']) + chalk.yellow(checking + ' Please wait ' + time + ' seconds'))
       }
-
-      let embedfooter = 'Updated every ' + time + ' seconds'
-      if (enablef === true) embedfooter = 'Updated every ' + time + ' seconds | ' + footer
 
       let embed = new MessageEmbed()
         .setTitle(title)
         .setColor(color)
         .addField('Panel Stats', panel)
-        .setFooter(embedfooter)
         .setThumbnail(client.user.avatarURL())
       if (enablets === true) {
         embed.setTimestamp()
@@ -288,12 +277,12 @@ module.exports = client => {
       else messages.edit(embed)
 
 
-      console.log(chalk.cyan('[PteroStats Checker] ') + chalk.green('Posted Stats'))
-      if (panel !== null) console.log(chalk.cyan('[PteroStats Checker] ') + chalk.green('Stats Updated'))
+      console.log(chalk.cyan('[live-stats@/events/ready.js:280] ') + chalk.green('Posted statistics to Discord.'))
+      if (panel !== null) console.log(chalk.cyan('[live-stats@/events/ready.js:281] ') + chalk.green('Statistics have been updated.'))
       console.log(chalk.cyan('[PteroStats Checker] ') + chalk.green('Updating Stats in ' + time + ' Seconds'))
 
     }).catch((err) => {
-      console.log(chalk.magenta('[PteroStats Debug] ') + chalk.red(err) + chalk.cyan(' Need Support? https://discord.gg/zv6maQRah3'))
+      console.log(chalk.magenta('[live-stats@/events/ready.js:285] ') + chalk.red(err))
     })
   }, time + '000')
 }

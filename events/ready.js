@@ -117,17 +117,13 @@ module.exports = client => {
               })
 
             }).catch((err) => {
-              let servers = '[Servers: Unavailable]'
-              let loc = '[Location: Unavailable]'
-              let port = '[Allocations: Unavailable]'
-
               console.log(chalk.cyan('[live-stats@/events/ready.js:153] ') + chalk.red(node.data.attributes.name + ' is offline.'))
 
               nodetable.set('node' + id, {
                 status: false,
-                servers: servers,
-                location: loc,
-                port: port,
+                servers: 'Servers: ...',
+                location: 'Location: ...',
+                port: 'Allocations: ...',
                 mode: false
               })
             })
